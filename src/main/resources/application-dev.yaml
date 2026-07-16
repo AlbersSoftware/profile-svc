@@ -4,9 +4,9 @@ server:
 spring:
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/kinorify
-    username: postgres
-    password: 212966Ca!
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
 
   jpa:
     hibernate:
@@ -25,20 +25,11 @@ spring:
 
 
 
+
+
 aws:
-
   cognito:
-
     region: us-east-1
-
-    user-pool-id: us-east-1_aS80CP4As
-
-    client-id: 1nihkejbi381ce4m5ie4v20lrp
-
-    domain: https://SOME-DOMAIN-NOT-CREATED-YET.auth.us-east-1.amazoncognito.com
-
-    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aS80CP4As
-
-    openid-configuration-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aS80CP4As/.well-known/openid-configuration
-
-    jwks-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aS80CP4As/.well-known/jwks.json
+    user-pool-id: your-user-pool-id
+    client-id: your-client-id
+    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/your-user-pool-id
