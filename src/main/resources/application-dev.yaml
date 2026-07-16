@@ -1,0 +1,44 @@
+server:
+  port: 8081
+
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kinorify
+    username: postgres
+    password: 212966Ca!
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    open-in-view: false
+
+    properties:
+      hibernate:
+        default_schema: profile
+
+  liquibase:
+    enabled: true
+    default-schema: profile
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+
+
+aws:
+
+  cognito:
+
+    region: us-east-1
+
+    user-pool-id: us-east-1_aS80CP4As
+
+    client-id: 1nihkejbi381ce4m5ie4v20lrp
+
+    domain: https://SOME-DOMAIN-NOT-CREATED-YET.auth.us-east-1.amazoncognito.com
+
+    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aS80CP4As
+
+    openid-configuration-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aS80CP4As/.well-known/openid-configuration
+
+    jwks-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_aS80CP4As/.well-known/jwks.json

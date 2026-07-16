@@ -1,0 +1,37 @@
+server:
+  port: 8081
+
+spring:
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kinorify
+    username: postgres
+    password: 212966Ca!
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    open-in-view: false
+
+    properties:
+      hibernate:
+        default_schema: profile
+
+  liquibase:
+    enabled: true
+    default-schema: profile
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${aws.cognito.issuer-uri}
+
+aws:
+  cognito:
+    region: us-east-1
+    user-pool-id: your-user-pool-id
+    client-id: your-client-id
+    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/your-user-pool-id

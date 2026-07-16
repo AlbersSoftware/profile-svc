@@ -1,0 +1,29 @@
+databaseChangeLog:
+
+  - include:
+      file: changes/001-create-account-status-table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/002-create-profile-connection-status-table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/003-create-users-table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/004-create-profile-table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/005-create-profile-connection-table.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/006-seed-account-status.sql
+      relativeToChangelogFile: true
+
+  - include:
+      file: changes/007-seed-profile-connection-status.sql
+      relativeToChangelogFile: true
