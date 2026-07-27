@@ -1,5 +1,6 @@
 package com.kinorify.kinorify_profile_svc.rest;
 
+import com.kinorify.kinorify_profile_svc.config.JwtService;
 import com.kinorify.kinorify_profile_svc.dto.request.CreateUserRequestDTO;
 import com.kinorify.kinorify_profile_svc.dto.response.UserResponseDTO;
 import com.kinorify.kinorify_profile_svc.entity.User;
@@ -9,11 +10,19 @@ import com.kinorify.kinorify_profile_svc.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -21,46 +30,85 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(UserController.class);
+
     private final UserService userService;
 
     private final AccountStatusRepository accountStatusRepository;
 
+    private final JwtService jwtService;
+
+
 
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(
-            @RequestBody CreateUserRequestDTO request) {
+            @RequestBody(required = false)
+            CreateUserRequestDTO request,
+            @AuthenticationPrincipal Jwt jwt) {
 
-        // TODO:
-        // Once Cognito JWT authentication is configured,
-        // remove CreateUserRequestDTO and instead extract:
-        //
-        //  sub            -> cognitoSub
-        //  email          -> email
-        //  email_verified -> emailVerified
-        //
-        // directly from the authenticated JWT.
 
-        User user = new User();
+        String cognitoSub =
+                jwtService.getCognitoSub(jwt);
 
-        user.setCognitoSub(request.getCognitoSub());
 
-        user.setEmail(request.getEmail());
+        Optional<UserResponseDTO> existingUser =
+                userService.getUserByCognitoSub(cognitoSub);
 
-        user.setEmailVerified(request.isEmailVerified());
+
+        if (existingUser.isPresent()) {
+
+            log.warn(
+                    "User {} already exists.",
+                    cognitoSub);
+
+            return ResponseEntity.ok(
+                    existingUser.get());
+        }
+
+
+        User user =
+                new User();
+
+
+        user.setCognitoSub(
+                cognitoSub);
+
+
+        user.setEmail(
+                jwtService.getEmail(jwt));
+
+
+        user.setEmailVerified(
+                jwtService.getEmailVerified(jwt));
+
 
         user.setAccountStatus(
                 accountStatusRepository.findById(
                         AccountStatusType.ACTIVE.getId())
                         .orElseThrow());
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(userService.createUser(user));
+
+        UserResponseDTO createdUser =
+                userService.createUser(user);
+
+
+        log.info(
+                "Successful user creation with id {}.",
+                createdUser.getUserId());
+
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createdUser);
     }
+
 
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponseDTO> getUserById(
-            @PathVariable UUID userId) {
+            @PathVariable UUID userId,
+            @AuthenticationPrincipal Jwt jwt) {
 
         return userService.getUserById(userId)
                 .map(ResponseEntity::ok)
@@ -68,9 +116,11 @@ public class UserController {
     }
 
 
+
     @GetMapping("/cognito/{cognitoSub}")
     public ResponseEntity<UserResponseDTO> getUserByCognitoSub(
-            @PathVariable String cognitoSub) {
+            @PathVariable String cognitoSub,
+            @AuthenticationPrincipal Jwt jwt) {
 
         return userService.getUserByCognitoSub(cognitoSub)
                 .map(ResponseEntity::ok)
@@ -78,9 +128,11 @@ public class UserController {
     }
 
 
+
     @GetMapping("/email/{email}")
     public ResponseEntity<UserResponseDTO> getUserByEmail(
-            @PathVariable String email) {
+            @PathVariable String email,
+            @AuthenticationPrincipal Jwt jwt) {
 
         return userService.getUserByEmail(email)
                 .map(ResponseEntity::ok)
@@ -88,8 +140,10 @@ public class UserController {
     }
 
 
+
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers(
+            @AuthenticationPrincipal Jwt jwt) {
 
         return ResponseEntity.ok(
                 userService.getAllUsers());

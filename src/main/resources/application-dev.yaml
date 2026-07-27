@@ -4,9 +4,9 @@ server:
 spring:
 
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    url: 
+    username: 
+    password: 
 
   jpa:
     hibernate:
@@ -23,13 +23,26 @@ spring:
     default-schema: profile
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
-
-
-
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 
 
 aws:
+
   cognito:
-    region: us-east-1
-    user-pool-id: your-user-pool-id
-    client-id: your-client-id
-    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/your-user-pool-id
+
+    region: 
+
+    user-pool-id: 
+
+    client-id: 
+
+    domain:
+
+    issuer-uri: 
+
+    openid-configuration-uri:
+
+    jwks-uri: 
