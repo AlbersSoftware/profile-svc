@@ -1,0 +1,20 @@
+type ProfileSearchResult {
+
+    userId: ID!
+
+    displayName: String!
+
+    avatarMediaId: ID
+
+}
+
+
+ type Query {
+
+    searchProfiles(
+        query: String!,
+        page: Int = 0,
+        size: Int = 20
+    ): [ProfileSearchResult!]!
+
+}

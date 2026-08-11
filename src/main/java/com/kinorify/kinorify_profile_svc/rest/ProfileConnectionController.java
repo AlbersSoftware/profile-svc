@@ -7,9 +7,9 @@ import com.kinorify.kinorify_profile_svc.dto.response.ProfileConnectionResponseD
 import com.kinorify.kinorify_profile_svc.entity.User;
 import com.kinorify.kinorify_profile_svc.repository.UserRepository;
 import com.kinorify.kinorify_profile_svc.service.ProfileConnectionService;
-
+import com.kinorify.kinorify_profile_svc.dto.response.ProfileConnectionDetailsResponseDTO;
 import lombok.RequiredArgsConstructor;
-
+import com.kinorify.kinorify_profile_svc.dto.response.ProfileConnectionOutgoingDetailsResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -361,5 +361,51 @@ public class ProfileConnectionController {
                         .getDeclinedConnectionsByUserId(userId)
         );
     }
+
+
+     @GetMapping("/user/{userId}/accepted/details")
+     public ResponseEntity<List<ProfileConnectionDetailsResponseDTO>>
+     getAcceptedConnectionDetailsByUserId(
+        @PathVariable UUID userId,
+        @AuthenticationPrincipal Jwt jwt) {
+
+      log.info(
+            "User {} retrieving accepted connection details for user {}.",
+            getAuthenticatedUserId(jwt),
+            userId
+       );
+
+    return ResponseEntity.ok(
+            profileConnectionService
+                    .getAcceptedConnectionDetailsByUserId(userId)
+    );
+}
+
+
+    @GetMapping("/user/{userId}/outgoing/details")
+    public ResponseEntity<List<ProfileConnectionOutgoingDetailsResponseDTO>>
+    getOutgoingConnectionDetailsByUserId(
+        @PathVariable UUID userId,
+        @AuthenticationPrincipal Jwt jwt
+      ) {
+
+
+    log.info(
+            "User {} retrieving outgoing connection details for user {}.",
+            getAuthenticatedUserId(jwt),
+            userId
+    );
+
+
+    return ResponseEntity.ok(
+            profileConnectionService
+                    .getOutgoingConnectionDetailsByUserId(
+                            userId
+                    )
+    );
+
+}
+
+
 
 }

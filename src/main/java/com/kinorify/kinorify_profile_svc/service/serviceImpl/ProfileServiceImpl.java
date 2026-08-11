@@ -8,9 +8,10 @@ import com.kinorify.kinorify_profile_svc.entity.User;
 import com.kinorify.kinorify_profile_svc.repository.ProfileRepository;
 import com.kinorify.kinorify_profile_svc.repository.UserRepository;
 import com.kinorify.kinorify_profile_svc.service.ProfileService;
-
+import com.kinorify.kinorify_profile_svc.dto.response.ProfileSearchResponseDTO;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,93 +31,129 @@ public class ProfileServiceImpl
 
 
 
-    @Override
-    @Transactional
-    public ProfileResponseDTO createProfile(
-            CreateProfileRequestDTO request) {
+    
 
 
-        User user =
-                userRepository.findById(request.getUserId())
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "User not found."));
+
+@Override
+@Transactional
+public ProfileResponseDTO createProfile(
+        CreateProfileRequestDTO request) {
 
 
-        Profile profile =
-                new Profile();
+    User user =
+            userRepository.findById(
+                    request.getUserId())
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "User not found."));
 
 
-        profile.setUser(user);
+    if (
+        profileRepository.existsByDisplayNameIgnoreCase(
+                request.getDisplayName())
+    ) {
 
+        throw new IllegalArgumentException(
+                "username is already taken");
 
-        profile.setDisplayName(
-                request.getDisplayName());
-
-        profile.setPhone(
-                request.getPhone());
-
-        profile.setEmail(
-                request.getEmail());
-
-        profile.setAvatarMediaId(
-                request.getAvatarMediaId());
-
-        profile.setTimezone(
-                request.getTimezone());
-
-        profile.setBirthday(
-                request.getBirthday());
-
-        profile.setBio(
-                request.getBio());
-
-
-        return mapToResponse(
-                profileRepository.save(profile));
     }
 
 
-
-    @Override
-    @Transactional
-    public ProfileResponseDTO updateProfile(
-            UUID userId,
-            UpdateProfileRequestDTO request) {
+    Profile profile =
+            new Profile();
 
 
-        Profile profile =
-                profileRepository.findByUserId(userId)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException(
-                                        "Profile not found."));
+    profile.setUser(
+            user);
 
 
-        profile.setDisplayName(
-                request.getDisplayName());
+    profile.setDisplayName(
+            request.getDisplayName());
 
-        profile.setPhone(
-                request.getPhone());
+    profile.setPhone(
+            request.getPhone());
 
-        profile.setEmail(
-                request.getEmail());
+    profile.setEmail(
+            request.getEmail());
 
-        profile.setAvatarMediaId(
-                request.getAvatarMediaId());
+    profile.setAvatarMediaId(
+            request.getAvatarMediaId());
 
-        profile.setTimezone(
-                request.getTimezone());
+    profile.setTimezone(
+            request.getTimezone());
 
-        profile.setBirthday(
-                request.getBirthday());
+    profile.setBirthday(
+            request.getBirthday());
 
-        profile.setBio(
-                request.getBio());
+    profile.setBio(
+            request.getBio());
 
 
-        return mapToResponse(
-                profileRepository.save(profile));
+    return mapToResponse(
+            profileRepository.save(
+                    profile));
+}
+
+
+@Override
+@Transactional
+public ProfileResponseDTO updateProfile(
+        UUID userId,
+        UpdateProfileRequestDTO request) {
+
+
+    Profile profile =
+            profileRepository.findByUserId(
+                    userId)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Profile not found."));
+
+
+    if (
+        profileRepository
+                .existsByDisplayNameIgnoreCaseAndUserIdNot(
+                        request.getDisplayName(),
+                        userId)
+    ) {
+
+        throw new IllegalArgumentException(
+                "username is already taken");
+
     }
+
+
+    profile.setDisplayName(
+            request.getDisplayName());
+
+    profile.setPhone(
+            request.getPhone());
+
+    profile.setEmail(
+            request.getEmail());
+
+    profile.setAvatarMediaId(
+            request.getAvatarMediaId());
+
+    profile.setTimezone(
+            request.getTimezone());
+
+    profile.setBirthday(
+            request.getBirthday());
+
+    profile.setBio(
+            request.getBio());
+
+
+    return mapToResponse(
+            profileRepository.save(
+                    profile));
+}
+
+
+
+
 
 
 
@@ -142,6 +179,33 @@ public class ProfileServiceImpl
                 .map(this::mapToResponse)
                 .toList();
     }
+
+
+@Override
+public Page<ProfileSearchResponseDTO> searchProfiles(String query, Pageable pageable) {
+
+    Page<Profile> profiles;
+
+    if (query == null || query.trim().length() < 3) {
+
+        profiles = profileRepository.findAll(pageable);
+
+    } else {
+
+        profiles = profileRepository.searchProfiles(query.trim(), pageable);
+
+    }
+
+
+    return profiles.map(profile ->
+            new ProfileSearchResponseDTO(
+                    profile.getUserId(),
+                    profile.getDisplayName(),
+                    profile.getAvatarMediaId()
+            )
+    );
+
+}
 
 
 

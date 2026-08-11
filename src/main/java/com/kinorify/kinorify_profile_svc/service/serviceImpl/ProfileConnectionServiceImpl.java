@@ -7,7 +7,8 @@ import com.kinorify.kinorify_profile_svc.repository.ProfileConnectionRepository;
 import com.kinorify.kinorify_profile_svc.repository.ProfileConnectionStatusRepository;
 import com.kinorify.kinorify_profile_svc.repository.UserRepository;
 import com.kinorify.kinorify_profile_svc.service.ProfileConnectionService;
-
+import com.kinorify.kinorify_profile_svc.dto.response.ProfileConnectionOutgoingDetailsResponseDTO;
+import com.kinorify.kinorify_profile_svc.dto.response.ProfileConnectionDetailsResponseDTO;
 import com.kinorify.kinorify_profile_svc.dto.response.ProfileConnectionResponseDTO;
 import lombok.RequiredArgsConstructor;
 
@@ -293,6 +294,38 @@ public List<ProfileConnectionResponseDTO> getDeclinedConnectionsByUserId(
             .stream()
             .map(this::mapToResponse)
             .toList();
+}
+
+
+
+@Override
+@Transactional(readOnly = true)
+public List<ProfileConnectionDetailsResponseDTO>
+getAcceptedConnectionDetailsByUserId(UUID userId) {
+
+    return connectionRepository
+            .findAcceptedConnectionDetailsByUserId(userId)
+            .stream()
+            .map(connection ->
+                    new ProfileConnectionDetailsResponseDTO(
+                            connection.getConnectionId(),
+                            connection.getUserId(),
+                            connection.getDisplayName(),
+                            connection.getStatus()
+                    )
+            )
+            .toList();
+}
+
+@Override
+@Transactional(readOnly = true)
+public List<ProfileConnectionOutgoingDetailsResponseDTO>
+getOutgoingConnectionDetailsByUserId(UUID userId) {
+
+    return connectionRepository
+            .getOutgoingConnectionDetailsByUserId(
+                    userId
+            );
 }
 
 

@@ -4,9 +4,9 @@ server:
 spring:
 
   datasource:
-    url: 
-    username: 
-    password: 
+    url:{DATASOURCEURL} 
+    username: {DATASOURCE-USERNAME}
+    password: {DATASOURCE-PASSWORD}
 
   jpa:
     hibernate:
@@ -27,22 +27,22 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: 
+          issuer-uri: {OAUTH-URI}
 
 aws:
 
   cognito:
 
-    region: 
+    region:{aws-region} 
 
-    user-pool-id: 
+    user-pool-id:{aws-user-pool-id} 
 
-    client-id: 
+    client-id: {aws-client-id}
 
-    domain:
+    domain: {aws-domain}
 
-    issuer-uri: 
+    issuer-uri: {aws-issuer-uri}
 
-    openid-configuration-uri:
+    openid-configuration-uri: {aws-openid-uri}
 
-    jwks-uri: 
+    jwks-uri: {aws-jwks-uri}
